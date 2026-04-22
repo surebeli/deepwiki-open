@@ -186,14 +186,15 @@ export default function Home() {
     let owner = '', repo = '', type = 'github', fullPath;
     let localPath: string | undefined;
 
-    // Handle Windows absolute paths (e.g., C:\path\to\folder)
-    const windowsPathRegex = /^[a-zA-Z]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]*$/;
+    // Handle Windows absolute paths (e.g., C:\path\to\folder or F:/path)
+    const windowsPathRegex = /^[a-zA-Z]:[\\/].*$/;
     const customGitRegex = /^(?:https?:\/\/)?([^\/]+)\/(.+?)\/([^\/]+)(?:\.git)?\/?$/;
 
     if (windowsPathRegex.test(input)) {
       type = 'local';
       localPath = input;
-      repo = input.split('\\').pop() || 'local-repo';
+      // Handle both backslashes and forward slashes
+      repo = input.split(/[\\/]/).filter(Boolean).pop() || 'local-repo';
       owner = 'local';
     }
     // Handle Unix/Linux absolute paths (e.g., /path/to/folder)
