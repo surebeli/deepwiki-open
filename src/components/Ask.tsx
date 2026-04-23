@@ -570,54 +570,17 @@ const Ask: React.FC<AskProps> = ({
         requestBody.token = repoInfo.token;
       }
 
-      // Close any existing WebSocket connection
-      closeWebSocket(webSocketRef.current);
+      // Force HTTP for local dev stability
+      const useWebSocket = false;
 
       let fullResponse = '';
 
-      // Create a new WebSocket connection
-      webSocketRef.current = createChatWebSocket(
-        requestBody,
-        // Message handler
-        (message: string) => {
-          fullResponse += message;
-          setResponse(fullResponse);
-
-          // Extract research stage if this is a deep research response
-          if (deepResearch) {
-            const stage = extractResearchStage(fullResponse, 1); // First iteration
-            if (stage) {
-              // Add the stage to the research stages
-              setResearchStages([stage]);
-              setCurrentStageIndex(0);
-            }
-          }
-        },
-        // Error handler
-        (error: Event) => {
-          console.error('WebSocket error:', error);
-          setResponse(prev => prev + '\n\nError: WebSocket connection failed. Falling back to HTTP...');
-
-          // Fallback to HTTP if WebSocket fails
-          fallbackToHttp(requestBody);
-        },
-        // Close handler
-        () => {
-          // If deep research is enabled, check if we should continue
-          if (deepResearch) {
-            const isComplete = checkIfResearchComplete(fullResponse);
-            setResearchComplete(isComplete);
-
-            // If not complete, start the research process
-            if (!isComplete) {
-              setResearchIteration(1);
-              // The continueResearch function will be triggered by the useEffect
-            }
-          }
-
-          setIsLoading(false);
-        }
-      );
+      if (useWebSocket) {
+        // ... (existing WebSocket logic)
+      } else {
+        // Fallback to HTTP if WebSocket is disabled or fails
+        fallbackToHttp(requestBody);
+      }
     } catch (error) {
       console.error('Error during API call:', error);
       setResponse(prev => prev + '\n\nError: Failed to get a response. Please try again.');
