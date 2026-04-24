@@ -36,6 +36,10 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
+        source: '/api/wiki/projects',
+        destination: `${TARGET_SERVER_BASE_URL}/api/processed_projects`,
+      },
+      {
         source: '/api/wiki_cache/:path*',
         destination: `${TARGET_SERVER_BASE_URL}/api/wiki_cache/:path*`,
       },
