@@ -13,6 +13,8 @@ interface ProcessedProject {
   repo_type: string;
   submittedAt: number;
   language: string;
+  localPath?: string;
+  repoUrl?: string;
 }
 
 interface ProcessedProjectsProps {
@@ -66,7 +68,8 @@ export default function ProcessedProjects({
         if (data.error) {
           throw new Error(data.error);
         }
-        setProjects(data as ProcessedProject[]);
+        // API returns {status, data: [...]}
+        setProjects(data.data || []);
       } catch (e: unknown) {
         console.error("Failed to load projects from API:", e);
         const message = e instanceof Error ? e.message : "An unknown error occurred.";
@@ -205,7 +208,7 @@ export default function ProcessedProjects({
                   <FaTimes className="h-4 w-4" />
                 </button>
                 <Link
-                  href={`/${project.owner}/${project.repo}?type=${project.repo_type}&language=${project.language}`}
+                  href={`/${project.owner}/${project.repo}?type=${project.repo_type}&language=${project.language}${project.localPath ? `&repo_url=${encodeURIComponent(project.localPath)}` : ''}`}
                   className="block"
                 >
                   <h3 className="text-lg font-semibold text-[var(--link-color)] hover:underline mb-2 line-clamp-2">
@@ -235,7 +238,7 @@ export default function ProcessedProjects({
                   <FaTimes className="h-4 w-4" />
                 </button>
                 <Link
-                  href={`/${project.owner}/${project.repo}?type=${project.repo_type}&language=${project.language}`}
+                  href={`/${project.owner}/${project.repo}?type=${project.repo_type}&language=${project.language}${project.localPath ? `&repo_url=${encodeURIComponent(project.localPath)}` : ''}`}
                   className="flex items-center justify-between"
                 >
                   <div className="flex-1 min-w-0">

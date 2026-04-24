@@ -9,6 +9,18 @@ import { tomorrow } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import Mermaid from './Mermaid';
 import 'katex/dist/katex.min.css';
 
+// Sanitize Mermaid code before rendering
+// NOTE: LLM should generate compatible syntax per prompt instructions.
+// This is a fallback for edge cases where LLM still includes problematic chars.
+function sanitizeMermaidCode(code: string): string {
+  return (
+    code
+    .replace(/"/g, "'")        // Double quotes in labels → single quotes
+    .replace(/\(/g, '（')       // Parentheses → Chinese equivalents
+    .replace(/\)/g, '）')       // Parentheses → Chinese equivalents
+  );
+}
+
 interface MarkdownProps {
   content: string;
 }
@@ -127,10 +139,11 @@ const Markdown: React.FC<MarkdownProps> = ({ content }) => {
 
       // Handle Mermaid diagrams
       if (!inline && match && match[1] === 'mermaid') {
+        const cleanedMermaid = sanitizeMermaidCode(codeContent);
         return (
           <div className="my-8 bg-gray-50 dark:bg-gray-800 rounded-md overflow-hidden shadow-sm">
             <Mermaid
-              chart={codeContent}
+              chart={cleanedMermaid}
               className="w-full max-w-full"
               zoomingEnabled={true}
             />

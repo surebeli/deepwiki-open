@@ -365,8 +365,17 @@ const Mermaid: React.FC<MermaidProps> = ({ chart, className = '', zoomingEnabled
         setError(null);
         setSvg('');
 
+        // Preprocess chart to fix common Mermaid syntax issues
+        // NOTE: LLM should generate compatible syntax per prompt instructions.
+        // This is a fallback for edge cases where LLM still includes problematic chars.
+        // Only handle the most common breaking characters:
+        const cleanedChart = chart
+          .replace(/"/g, "'")        // Double quotes in labels → single quotes
+          .replace(/\(/g, '（')       // Parentheses → Chinese equivalents
+          .replace(/\)/g, '）');      // Parentheses → Chinese equivalents
+
         // Render the chart directly without preprocessing
-        const { svg: renderedSvg } = await mermaid.render(idRef.current, chart);
+        const { svg: renderedSvg } = await mermaid.render(idRef.current, cleanedChart);
 
         if (!isMounted) return;
 
